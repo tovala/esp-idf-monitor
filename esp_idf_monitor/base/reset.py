@@ -110,12 +110,19 @@ class Reset:
 
     def hard(self) -> None:
         """Hard reset chip"""
+        if callable(getattr(self.serial_instance, "reset", None)):
+            return self.serial_instance.reset()
+
         self._setRTS(LOW)  # EN=LOW, chip in reset
         time.sleep(self.chip_config['reset'])
         self._setRTS(HIGH)  # EN=HIGH, chip out of reset
 
     def to_bootloader(self) -> None:
         """Reset chip into bootloader"""
+
+        if callable(getattr(self.serial_instance, "to_bootloader", None)):
+            return self.serial_instance.to_bootloader()
+
         if self.custom_seq:
             # use custom reset sequence set in config file
             source = 'from esptool ' if self.esptool_config else ''

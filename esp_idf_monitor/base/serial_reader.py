@@ -105,9 +105,6 @@ class SerialReader(Reader):
 
         self.serial.open()
 
-        # set DTR/RTS into expected HIGH state, but set the RTS first to avoid reset
-        self.reset_strategy._setRTS(HIGH)
-        self.reset_strategy._setDTR(HIGH)
         if reset:
             self.reset_strategy.hard()
 
@@ -117,6 +114,9 @@ class SerialReader(Reader):
         self.serial.close()
 
     def _disable_closing_wait_or_discard_data(self):  # type: () -> None
+        if hasattr(self.serial, "_threadwait"):
+            self.serial._threadwait = 0
+
         # ignore setting closing wait for network ports such as RFC2217
         if sys.platform == 'linux' and hasattr(self.serial, 'fd') and self.serial.is_open:
             import fcntl
