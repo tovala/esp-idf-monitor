@@ -39,15 +39,17 @@ class ConsoleReader(StoppableThread):
     def run(self):
         # type: () -> None
         self.console.setup()
-        if sys.platform != 'win32':
+
+        if sys.platform != 'win32' and self.console.terminal is not None:
             # Use non-blocking busy read to avoid using insecure TIOCSTI from console.cancel().
             # TIOCSTI is not supported on kernels newer than 6.2.
             import termios
-            new = termios.tcgetattr(self.console.fd)
+            new = termios.tcgetattr(self.console.terminal)
             # new[6] - 'cc': a list of the tty special characters
             new[6][termios.VMIN] = 0  # minimum bytes to read
             new[6][termios.VTIME] = 2  # timer of 0.1 second granularity
-            termios.tcsetattr(self.console.fd, termios.TCSANOW, new)
+            termios.tcsetattr(self.console.terminal, termios.TCSANOW, new)
+
         try:
             while self.alive:
                 try:
