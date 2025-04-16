@@ -27,7 +27,7 @@ classifiers = [
 requires-python = ">=3.7"
 dynamic = ['version']
 dependencies = [
-    "pyserial>=3.3",
+    "pyserial>=3.7",
     "esp-coredump~=1.2",
     "esp-idf-panic-decoder~=1.2",
     "pyelftools",
