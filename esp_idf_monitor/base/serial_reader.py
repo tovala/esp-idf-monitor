@@ -99,7 +99,15 @@ class SerialReader(Reader):
             self.close_serial()
 
     def open_serial(self, reset: bool) -> None:
+        # set the DTR/RTS into LOW prior open
+        self.reset_strategy._setRTS(LOW)
+        self.reset_strategy._setDTR(LOW)
+
         self.serial.open()
+
+        # set DTR/RTS into expected HIGH state, but set the RTS first to avoid reset
+        self.reset_strategy._setRTS(HIGH)
+        self.reset_strategy._setDTR(HIGH)
 
         if reset:
             self.reset_strategy.hard()
