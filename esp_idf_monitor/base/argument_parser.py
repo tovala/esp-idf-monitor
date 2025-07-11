@@ -149,4 +149,10 @@ def get_parser():  # type: () -> argparse.ArgumentParser
         type=int
     )
 
+    parser.add_argument(
+        '--classic-reset',
+        help="Use classic reset mode: don't use serial instance overrides for software/bootloader resets",
+        default=False,
+        action='store_true')
+
     return parser

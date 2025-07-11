@@ -105,6 +105,7 @@ class Monitor:
         force_color=False,  # type: bool
         disable_auto_color=False,  # type: bool
         rom_elf_file=None,  # type: Optional[str]
+        classic_reset=False, # type: bool
     ):
         self.event_queue = queue.Queue()  # type: queue.Queue
         self.cmd_queue = queue.Queue()  # type: queue.Queue
@@ -131,7 +132,7 @@ class Monitor:
             # testing hook: when running tests, input from console is ignored
             socket_test_mode = os.environ.get('ESP_IDF_MONITOR_TEST') == '1'
             self.serial = serial_instance
-            self.serial_reader = SerialReader(self.serial, self.event_queue, reset, open_port_attempts, target)  # type: Reader
+            self.serial_reader = SerialReader(self.serial, self.event_queue, reset, open_port_attempts, target, classic_reset)  # type: Reader
 
             self.gdb_helper = GDBHelper(toolchain_prefix, websocket_client, self.elf_files, self.serial.port,
                                         self.serial.baudrate) if self.elf_exists else None
@@ -146,7 +147,7 @@ class Monitor:
 
         cls = SerialHandler if self.elf_exists else SerialHandlerNoElf
         self.serial_handler = cls(b'', socket_test_mode, self.logger, decode_panic, PANIC_IDLE, b'', target,
-                                  False, False, self.serial, encrypted, self.elf_files, toolchain_prefix, disable_auto_color)
+                                  False, False, self.serial, encrypted, self.elf_files, toolchain_prefix, disable_auto_color, classic_reset)
 
         self.console_parser = ConsoleParser(eol)
         self.console_reader = ConsoleReader(self.console, self.event_queue, self.cmd_queue, self.console_parser,
@@ -434,7 +435,8 @@ def main() -> None:
                       args.timestamp_format,
                       args.force_color,
                       args.disable_auto_color,
-                      rom_elf_file)
+                      rom_elf_file,
+                      args.classic_reset)
 
         note_print('Quit: {q} | Menu: {m} | Help: {m} followed by {h}'.format(
             q=key_description(EXIT_KEY),

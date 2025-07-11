@@ -25,7 +25,7 @@ class SerialReader(Reader):
     event queue, until stopped.
     """
 
-    def __init__(self, serial_instance, event_queue, reset, open_port_attempts, target):
+    def __init__(self, serial_instance, event_queue, reset, open_port_attempts, target, classic_reset):
         #  type: (serial.Serial, queue.Queue, bool, int, str) -> None
         super(SerialReader, self).__init__()
         self.baud = serial_instance.baudrate
@@ -34,7 +34,7 @@ class SerialReader(Reader):
         self.gdb_exit = False
         self.reset = reset
         self.open_port_attempts = open_port_attempts
-        self.reset_strategy = Reset(serial_instance, target)
+        self.reset_strategy = Reset(serial_instance, target, classic_reset)
         if not hasattr(self.serial, 'cancel_read'):
             # enable timeout for checking alive flag,
             # if cancel_read not available

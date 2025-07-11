@@ -66,8 +66,8 @@ class SerialHandler:
     The class is responsible for buffering serial input and performing corresponding commands.
     """
     def __init__(self, last_line_part, serial_check_exit, logger, decode_panic, reading_panic, panic_buffer, target,
-                 force_line_print, start_cmd_sent, serial_instance, encrypted, elf_files, toolchain_prefix, disable_auto_color):
-        # type: (bytes, bool, Logger, str, int, bytes, str, bool, bool, serial.Serial, bool, List[str], str, bool) -> None
+                 force_line_print, start_cmd_sent, serial_instance, encrypted, elf_files, toolchain_prefix, disable_auto_color, classic_reset):
+        # type: (bytes, bool, Logger, str, int, bytes, str, bool, bool, serial.Serial, bool, List[str], str, bool, bool) -> None
         self._last_line_part = last_line_part
         self._serial_check_exit = serial_check_exit
         self.logger = logger
@@ -82,7 +82,7 @@ class SerialHandler:
         self.elf_files = elf_files
         self.decode_error_cnt = 0
         self._trailing_color = False
-        self.reset = Reset(serial_instance, target)
+        self.reset = Reset(serial_instance, target, classic_reset)
         self.panic_handler = PanicOutputDecoder(toolchain_prefix, elf_files, target)
         self.disable_auto_color = disable_auto_color
         self.binlog = BinaryLog(elf_files)

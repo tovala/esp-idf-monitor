@@ -36,10 +36,15 @@ class Reset:
         'U': 'self._setDTRandRTS({})',
     }
 
-    def __init__(self, serial_instance: serial.Serial, chip: str) -> None:
+    def __init__(self, serial_instance: serial.Serial, chip: str, classic_reset: bool) -> None:
         self.serial_instance = serial_instance
         self.chip_config = get_chip_config(chip)
         self.port_pid = self._get_port_pid()
+        self.classic_reset = classic_reset
+
+        if os.getenv("CLASSIC_RESET") is not None:
+            self.classic_reset=not not os.getenv("CLASSIC_RESET")
+            print(f"Using CLASSIC_RESET override: {self.classic_reset}")
         self._load_config()
 
     def _load_config(self) -> None:
@@ -110,7 +115,7 @@ class Reset:
 
     def hard(self) -> None:
         """Hard reset chip"""
-        if callable(getattr(self.serial_instance, "reset", None)):
+        if not self.classic_reset and callable(getattr(self.serial_instance, "reset", None)):
             return self.serial_instance.reset()
 
         self._setRTS(LOW)  # EN=LOW, chip in reset
@@ -120,7 +125,7 @@ class Reset:
     def to_bootloader(self) -> None:
         """Reset chip into bootloader"""
 
-        if callable(getattr(self.serial_instance, "to_bootloader", None)):
+        if not self.classic_reset and callable(getattr(self.serial_instance, "to_bootloader", None)):
             return self.serial_instance.to_bootloader()
 
         if self.custom_seq:
